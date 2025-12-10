@@ -10,3 +10,8 @@ replit.nix
 replit.md
 .local/
 .replit/
+.replit
+replit.nix
+replit.md
+.local
+.state
