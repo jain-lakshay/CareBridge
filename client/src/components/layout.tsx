@@ -14,9 +14,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   const navItems = [
-    { href: "/", icon: LayoutGrid, label: "Find Doctors" },
-    { href: "/my-bookings", icon: Calendar, label: "My Bookings" },
-    { href: "/admin", icon: ShieldCheck, label: "Admin Portal" },
+    { href: "/", icon: Video, label: "Health Guidance" },
+    { href: "/doctors", icon: Stethoscope, label: "Find Doctors" },
+    { href: "/consultation", icon: ShieldCheck, label: "Smart Consult" },
   ];
 
   return (

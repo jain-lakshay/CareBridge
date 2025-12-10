@@ -1,62 +1,117 @@
-import Layout from "@/components/layout";
-import { useApp } from "@/context/mock-data";
-import DoctorCard from "@/components/doctor-card";
+import { useState } from "react";
+import { VIDEOS } from "@/lib/mock-data";
 import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import generatedImage from "@assets/generated_images/medical_tech_background_abstract.png";
+import { Search, Play } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
-  const { doctors } = useApp();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const filteredVideos = VIDEOS.filter((video) => {
+    const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory ? video.category === selectedCategory : true;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = Array.from(new Set(VIDEOS.map((v) => v.category)));
 
   return (
-    <Layout>
-      <div className="space-y-8 animate-in fade-in duration-500">
-        
-        {/* Hero Section */}
-        <div className="relative rounded-3xl overflow-hidden bg-primary text-primary-foreground p-8 md:p-12">
-          <div className="absolute inset-0 opacity-20">
-             <img src={generatedImage} alt="Background" className="w-full h-full object-cover" />
-          </div>
-          <div className="relative z-10 max-w-2xl">
-            <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4 leading-tight">
-              Trusted Guidance for Better Health
-            </h1>
-            <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl">
-              Connect with verified specialists for non-diagnostic guidance and professional consultation booking.
-            </p>
-            
-            <div className="flex gap-2 max-w-md bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
-                <Input 
-                  placeholder="Search doctors, specializations..." 
-                  className="pl-10 bg-transparent border-none text-white placeholder:text-white/60 focus-visible:ring-0"
-                />
-              </div>
-              <Button variant="secondary" className="hidden sm:flex">
-                Search
-              </Button>
-            </div>
-          </div>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Hero Section */}
+      <section className="text-center py-12 space-y-6 relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/5 to-transparent rounded-3xl" />
+        <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight text-foreground max-w-4xl mx-auto leading-tight">
+          Healthcare Guidance, <span className="text-primary">Simplified.</span>
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Not every symptom needs a hospital visit. Get verified advice from professional doctors for common health concerns.
+        </p>
+        <div className="flex flex-wrap justify-center gap-4 pt-4">
+          <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-lg shadow-primary/20">
+            Browse Topics
+          </Button>
+          <Button size="lg" variant="outline" className="rounded-full px-8 h-12 text-base">
+            How it Works
+          </Button>
         </div>
+      </section>
 
-        {/* Doctors Grid */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-heading font-bold text-foreground">Top Specialists</h2>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Filter className="h-4 w-4" /> Filters
+      {/* Search and Filter */}
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border shadow-sm sticky top-4 z-10 backdrop-blur-md bg-opacity-90">
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search symptoms (e.g., 'fever', 'back pain')..."
+            className="pl-9 bg-background/50"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto scrollbar-hide">
+          <Button
+            variant={selectedCategory === null ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedCategory(null)}
+            className="rounded-full"
+          >
+            All
+          </Button>
+          {categories.map((cat) => (
+            <Button
+              key={cat}
+              variant={selectedCategory === cat ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(cat)}
+              className="rounded-full whitespace-nowrap"
+            >
+              {cat}
             </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {doctors.map(doctor => (
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            ))}
-          </div>
+          ))}
         </div>
       </div>
-    </Layout>
+
+      {/* Video Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredVideos.map((video) => (
+          <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-border/50 bg-card/50 backdrop-blur-sm">
+            <div className="relative aspect-video bg-muted overflow-hidden">
+              <img 
+                src={video.thumbnail} 
+                alt={video.title} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition-all duration-300">
+                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 shadow-xl">
+                  <Play className="h-5 w-5 text-primary ml-1 fill-primary" />
+                </div>
+              </div>
+              <Badge className="absolute top-2 right-2 bg-black/60 hover:bg-black/70 border-none text-white backdrop-blur-sm">
+                {video.duration}
+              </Badge>
+            </div>
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <Badge variant="secondary" className="text-xs font-normal">
+                  {video.category}
+                </Badge>
+                <span className="text-xs text-muted-foreground">{video.views} views</span>
+              </div>
+              <h3 className="font-bold text-lg leading-tight mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                {video.title}
+              </h3>
+              <div className="flex items-center gap-3 pt-3 border-t border-border/50">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary ring-2 ring-background">
+                  {video.doctorName[4]}
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">{video.doctorName}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
